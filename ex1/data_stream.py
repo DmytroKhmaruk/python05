@@ -142,6 +142,7 @@ class DataStream:
             return
         for processor in self._processors:
             name = processor.__class__.__name__
+            name = name.replace("Processor", " Processor")
             total = processor.get_total_processed()
             remininig = processor.get_data_count()
             print(f"{name}: total {total} items processed, remaining "
