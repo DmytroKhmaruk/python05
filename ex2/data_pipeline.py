@@ -35,7 +35,7 @@ class DataProcessor(ABC):
 
 
 class NumericProcessor(DataProcessor):
-    def validate(self, data: int | float | list[int | float]) -> bool:
+    def validate(self, data: typing.Any) -> bool:
         if isinstance(data, bool):
             return False
         if isinstance(data, (int, float)):
@@ -62,7 +62,7 @@ class NumericProcessor(DataProcessor):
 
 
 class TextProcessor(DataProcessor):
-    def validate(self, data: str | list[str]) -> bool:
+    def validate(self, data: typing.Any) -> bool:
         if isinstance(data, str):
             return True
         if isinstance(data, list):
@@ -85,23 +85,27 @@ class TextProcessor(DataProcessor):
 
 
 class LogProcessor(DataProcessor):
-    def _validate_dictionary(self, data: dict[str, str]) -> bool:
-        for key in data:
-            if not isinstance(key, str):
-                return False
-            if not isinstance(data[key], str):
-                return False
-        return True
-
-    def validate(self, data: dict[str, str] | list[dict[str, str]]) -> bool:
+    def validate(self, data: typing.Any) -> bool:
         if isinstance(data, dict):
-            return self._validate_dictionary(data)
+            if "log_level" not in data or "log_message" not in data:
+                return False
+            for key in data:
+                if not isinstance(key, str):
+                    return False
+                if not isinstance(data[key], str):
+                    return False
+            return True
         if isinstance(data, list):
             for item in data:
                 if not isinstance(item, dict):
                     return False
-                if not self._validate_dictionary(item):
+                if "log_level" not in item or "log_message" not in item:
                     return False
+                for key in item:
+                    if not isinstance(key, str):
+                        return False
+                    if not isinstance(item[key], str):
+                        return False
             return True
         return False
 
@@ -110,12 +114,10 @@ class LogProcessor(DataProcessor):
             raise TypeError("Invalid data")
         if isinstance(data, list):
             for item in data:
-                log_string = (f"{item['log_level']}: "
-                              f"{item['log_message']}")
+                log_string = (f"{item['log_level']}: {item['log_message']}")
                 self._data.append(log_string)
         else:
-            log_string = (f"{data['log_level']}: "
-                          f"{data['log_message']}")
+            log_string = (f"{data['log_level']}: {data['log_message']}")
             self._data.append(log_string)
 
 
