@@ -38,11 +38,13 @@ class NumericProcessor(DataProcessor):
     def validate(self, data: int | float | list[int | float]) -> bool:
         if isinstance(data, bool):
             return False
-        if isinstance(data, int) or isinstance(data, float):
+        if isinstance(data, (int, float)):
             return True
         if isinstance(data, list):
             for item in data:
-                if not isinstance(item, int) and not isinstance(item, float):
+                if isinstance(item, bool):
+                    return False
+                if not isinstance(item, (int, float)):
                     return False
             return True
         return False
