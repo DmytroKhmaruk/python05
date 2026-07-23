@@ -28,7 +28,7 @@ class DataProcessor(ABC):
         return result
 
     def get_total_processed(self) -> int:
-        return self._rank + len(self._data)
+        return self._total_processed
 
     def get_data_count(self) -> int:
         return len(self._data)
@@ -116,9 +116,11 @@ class LogProcessor(DataProcessor):
             for item in data:
                 log_string = (f"{item['log_level']}: {item['log_message']}")
                 self._data.append(log_string)
+                self._total_processed += 1
         else:
             log_string = (f"{data['log_level']}: {data['log_message']}")
             self._data.append(log_string)
+            self._total_processed += 1
 
 
 class DataStream:
@@ -194,11 +196,10 @@ def main() -> None:
     print("\nConsume some elements from the data processors: "
           "Numeric 3, Text 2, Log 1")
     print("== DataStream statistics ==")
-    numeric_processor.output()
-    numeric_processor.output()
-    numeric_processor.output()
-    text_processor.output()
-    text_processor.output()
+    for _ in range(3):
+        numeric_processor.output()
+    for _ in range(2):
+        text_processor.output()
     log_processor.output()
 
     data_stream.print_processors_stats()
